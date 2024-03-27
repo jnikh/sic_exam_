@@ -1,0 +1,83 @@
+practical 3
+
+ospf connection 
+
+R1(config)#line vty 0 4
+R1(config-line)#password admin
+R1(config-line)#login
+R1(config-line)#en
+R1(config)#router ospf 1
+R1(config-router)#network 192.168.1.0 0.0.0.255 area 0
+R1(config-router)#network 10.1.1.0 0.0.0.255 area 0
+
+R2(config)#router ospf 2
+R2(config-router)#network 192.168.2.0 0.0.0.255 area 0
+R2(config-router)#network 10.2.2.0 0.0.0.255 area 0
+R2(config-router)#network 10.1.1.0 0.0.0.255 area 0
+
+R3(config)#router ospf 3
+R3(config-router)#network 192.168.3.0 0.0.0.255 area 0
+R3(config-router)#network 10.2.2.0 0.0.0.255 area 0
+
+___________________________________________________________________________
+Part 1:configure  local AAA authentication for console acess on R1
+
+R1(config)#username Admin1 secret admin1pa55
+R1(config)#aaa new-model
+R1(config)#aaa authentication login default local
+R1(config)#line console 0
+R1(config-line)#login authentication default
+R1(config-line)#end
+R1#exit
+_____________________________________________________________________________
+Part 2:configure Local AAA authentication for vty lines on R1
+
+R1(config)# ip domain-name ccnasecurity.com
+R1(config)# crypto key generate rsa
+select 1024
+R1(config)# aaa authentication login SSH-LOGIN local
+R1(config)# line vty 0 4
+R1(config-line)# login authentication SSH-LOGIN 
+R1(config-line)# transport input ssh 
+R1(config-line)# end
+
+PC> ssh –l Admin1 192.168.1.1
+Open
+Password: admin1pa55
+______________________________________________________________________________
+part 3:configure server-Based AAA authentication using Tacacs+ on R2
+
+R2(config)# username Admin2 secret admin2pa55
+
+go to tacacs click on 'on' and enable AAA and type /client name R2 and /ip 192.168.2.1 and /secret-tacacspa55 /server type tacacs
+
+add username and password
+
+R2(config)# aaa new-model
+R2(config)# aaa authentication login default group tacacs+ local
+R2(config)# line console 0
+R2(config-line)# login authentication default
+R2(config-line)# end
+R2# exit
+User Access Verification
+Username: Admin2 Password: admin2pa55 
+_______________________________________________________________________________
+part 4: configure server-Based AAA authentication using Radius on R3
+
+R3(config)# username Admin3 secret admin3pa55
+
+go to radius and click on 'on' and enable AAA and type /client name R3 and /ip 192.168.3.1 and /radiuspa55 /server type radius
+
+add username and password
+
+R3(config)# aaa new-model
+R3(config)# aaa authentication login default group radius local
+R3(config)# line console 0
+R3(config-line)# login authentication default
+R3(config-line)# end
+R3# exit
+
+Username: Admin3
+Password: admin3pa55 
+
+

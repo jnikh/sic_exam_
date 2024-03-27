@@ -1,0 +1,39 @@
+Practical 8: configuring Layer 2 security
+
+//Go to central switch
+spanning-tree vlan 1 root primary
+ex
+//In Sw1
+spanning-tree vlan 1 root secondary
+//go back to central
+show spanning-tree
+//go to switch A
+interface range FastEthernet 0/1- 4
+spanning-tree portfast
+spanning-tree bpduguard enable 
+ex
+//go to switch B
+interface range FastEthernet 0/1- 4
+spanning-tree portfast
+spanning-tree bpduguard enable
+//go to Sw1
+interface range FastEthernet 0/23-24
+spanning-tree guard root
+//go to Sw2
+interface range FastEthernet 0/23-24
+spanning-tree guard root
+//go to Swa :(Repeat same for Swb)
+interface range f 0/1- 22
+switchport mode access
+switchport port-security maxium
+switch port-security violation shutdown
+switchport port-security mac-address sticky
+->go to Swa (Repeat for Swb)
+ex
+ex
+ex
+login to swa using password
+swa#show port-security interface f 0/1
+conf t
+interface range fastEthernet 0/5 -22
+shutdown

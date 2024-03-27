@@ -1,0 +1,45 @@
+practical 10: site to site Ipsec vpn using cli
+
+*configure ospf
+//for R1
+router ospf 1
+network 192.168.1.0 0.0.0.255 area 0
+network 10.1.1.0 0.0.0.3 area 0
+ex
+//for R2
+router ospf 1
+network 192.168.2.0 0.0.0.255 area 0
+network 10.2.2.0 0.0.0.3 area 0
+network 10.1.1.0 0.0.0.3 area 0
+ex
+//for R3
+router ospf 1
+network 192.168.3.0 0.0.0.255 area 0
+network 10.2.2.0 0.0.0.3 area 0
+ex
+
+test by ping pcA from pcB
+//In R1
+license boot module C1900 technology - package securityK9
+-y
+reload
+conf t
+access-list 110 permit ip 192.168.1.0
+0.0.0.255 192.168.3.0 0.0.0.255
+crypto is a kmp policy 10
+encryption aes 256
+authentication pre-share
+group 5
+ex
+crypto isa kmp key vpnpa5 5 address 10.2.2.1
+crypto ipsec transform-set
+crypto ipsec transform-set VPN-SET esp-aes
+crypto map VPN-MAP 10 ipsec-isatmp
+description VPN connection to R3
+set peer 10.2.2.2
+set transform-set VPN-SET
+match address 110
+interface s/0/0/0
+crypto map VPN-MAP
+
+*ping pc with each other

@@ -1,0 +1,68 @@
+practical 5 IP Acl's to mitigate attacks and IPV6 Acl's
+R1(config)#ip route 192.168.0.0 255.255.255.0 10.10.10.2
+R1(config)#do show run
+______________________________________________________________________
+next step direct copy paste
+
+enable secret enpa55
+line console 0
+password conpa55
+login
+exit
+ip domain-name ccnasecurity.com
+username admin secret adminpa55
+line vty 0 4
+login local
+exit
+crypto key generate rsa
+1024
+___________________________________________________________________________
+then go to config using conf t and paste the command
+
+access-list 1 deny any
+line vty 0 4
+access-class 1 in
+access-list 120 permit tcp host 192.168.0.3 host 10.10.10.2 eq ftp
+access-list 120 permit tcp host 192.168.0.3 host 10.10.10.2 eq www
+access-list 120 permit tcp host 192.168.0.2 host 10.10.10.2 eq 22
+int gi 0/0/0
+ip ac
+ip access-group 120 in
+____________________________________________________________________________________
+exit and go to router again 
+
+password to enter cli for R1 after configuring IPV6 for pcA pcC and server
+1)conpa55
+R1>en
+2)enpa55
+_____________________________________________________________________________________
+go to config
+
+no access-list 1
+access-list 120 permit tcp host 192.168.0.2 host 192.168.0.1 eq 22
+ex
+_________________________________________________________________________________________
+then next step is to go in (config-if) using command interface gigabitEthernet 0/0/0
+___________________________________________________________________________________________
+then simply paste this 
+
+ipv6 address 2001:DB8:1:10::1/64
+ipv6 address FE80::1 li
+ipv6 address FE80::1 link-local
+ex
+interface gigabitEthernet 0/0/1
+ipv6 address 2001:DB8:1:30::1/64
+ipv6 address FE80::30 link-local
+ex
+ipv6 unicast-routing
+ipv6 route 2001:DB8:1:10::1/64 2001:DB8:1:30::30
+ipv6 access-list HTTP
+permit tcp host 2001:DB8:1:10::9 host 2001:DB8:1:30::30 eq www
+permit tcp host 2001:DB8:1:10::9 host 2001:DB8:1:30::30 eq 443
+ex
+interface gigabitEthernet 0/0/0
+ipv6 traffic-filter HTTP in
+
+last step is to open browser in pcA and pcC and paste the url http://2001:DB8:1:30::30
+
+it should open for pcA and not pcC

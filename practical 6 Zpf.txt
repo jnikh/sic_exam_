@@ -1,0 +1,45 @@
+practical 6: Zpf
+
+R1
+enable secret enpa55
+line console 0
+password conpa55
+login
+exit
+ip domain-name ccnasecurity.com
+username admin secret adminpa55
+line vty 0 4
+login local 
+exit
+crypto key generate rsa
+1024 
+
+ license boot module c1900 technology-package securityk9
+y
+reload
+y
+enable
+zone security internal
+zone security external
+show version
+ip access-list extended 101
+permit ip 192.168.0.0 0.0.0.255 any
+ex
+class-map type inspect match-all 101
+match access-group name 101
+ex
+policy-map type inspect 101
+class type inspect 101
+inspect
+ex 2
+zone-pair security 101 source internal destination external
+service-policy type inspect 101
+ex
+interface gi 0/0
+zone-membar security internal
+ex
+interface gi 0/1
+zone-member security external
+ex 2
+copy running-config STartup-config
+

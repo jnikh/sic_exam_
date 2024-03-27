@@ -1,0 +1,17 @@
+practical 4: Extended Acl's
+
+//for R1
+conf t
+access-list 100 permit tcp 172.22.34.64 0.0.0.31 host 172.22.34.62 eq ftp
+access-list 100 permit icmp 172.22.34.64 0.0.0.31 host 172.22.34.62 
+interface G0/0
+ip access-group 100 in
+ex
+conf t
+ip access-list extended HTTP_ONLY
+permit tcp 172.22.34.96 0.0.0.15 host 172.22.34.62
+en
+interface G0/1
+ip access-group HTTP-ONLY in
+
+//to verify go to pcB browser & enter url->172.22.34.62

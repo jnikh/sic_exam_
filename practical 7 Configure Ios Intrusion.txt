@@ -1,0 +1,82 @@
+practical 7 Configure Ios Intrusion prevention system using cli
+
+make topology and configure 
+
+go to R1 in config using conf t and paste commands
+
+enable secret enpa55
+line console 0
+password conpa55
+login
+exit
+ip domain-name ccnasecurity.com
+username admin secret adminpa55
+line vty 0 4
+login local
+exit
+crypto key generate rsa
+1024
+ex
+show version
+
+*go to configure again using conf t
+
+lic  ->after pasting use ctr+tab till u get last line security
+R1(config)#license 
+R1(config)#license boot 
+R1(config)#license boot module 
+R1(config)#license boot module c1900 
+R1(config)#license boot module c1900 technology-package 
+R1(config)#license boot module c1900 technology-package securityk9
+*yes
+
+ex
+reload 
+*yes
+
+password: conpa55
+en password: enpa55
+
+in R1# paste one by one
+mkdir iosips
+conf t
+ip ips config location flash:iosips
+ip ips name iosips
+ip ips signature-category
+category all
+retired true
+ex
+category ios_ips basic
+retired false
+ex
+ex
+int gi 0/1 
+ip ips iosips out
+ex
+ip ips notify log
+ex
+R1# clock set current server time  date
+*clock set 11:05:03 Mar 26 2024 ->eg for syntax dont copy
+
+*go to server>services>Ntp>copy time and paste above command
+
+conf t
+service timestamps log datetime msec
+logging host 10.10.10.2
+ip ips signature-definition
+signature 2004 0
+status
+retired true
+enabled true
+retired false
+ex
+engine
+event-action produce-alert
+event-action deny-packet-inline
+ex
+ex
+
+*yes
+
+go to pc's and ping 10.10.10.2
+show logs from both pc in server using syslog in services
