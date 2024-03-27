@@ -1,0 +1,95 @@
+Step 1 :- ALL three routers 
+en 
+conf t 
+enable secret enpa55
+line console 0
+password conpa55
+login 
+exit 
+ip domain-name ccnasecurity.com 
+username admin secret adminpa55
+line vty 0 4 
+login local 
+exit
+crypto key generate rsa
+1024
+
+
+Step 2 :- Router 1  
+router ospf 1  
+network 192.168.1.0 0.0.0.255 area 0
+network 10.1.1.0 0.0.0.3 area 0
+
+Step 3 :- Router 2 
+router ospf 1  
+network 192.168.2.0 0.0.0.255 area 0
+network 10.2.2.0 0.0.0.3 area 0
+network 10.1.1.0 0.0.0.3 area 0
+ex
+
+Step 4 :- Router 3
+router ospf 1  
+network 10.2.2.0 0.0.0.3 area 0
+network 192.168.3.0 0.0.0.255 area 0
+network 10.1.1.0 0.0.0.3 area 0
+
+step 5 :- enable security package
+ go to R1 ---> CLI ---> lincense ---> tap enter 5 times
+  press y 
+  ex
+  reload
+  press y 
+
+Step 6 :- R1 
+access-list 110 permit ip 192.168.1.0 0.0.0.255 192.168.3.0.0 0.0.0.255
+crypto isakmp policy 10
+encryption aes 256
+authentication pre-share 
+group 5 
+exit 
+crypto isakmp key vpnpa55 address 10.2.2.2
+crypto ipsec transform-set VPN-SET esp-aes esp-sha-hmac
+crypto map VPN-MAP 10 ipsec-isakmp
+description VPN connection to R3
+set peer 10.2.2.2
+set transform-set VPN-SET
+match address 110 R1(config-crypto-map)
+exit
+interface s0/0/0
+crypto map VPN-MAP
+
+step 7 :- enable security package
+ go to R3 ---> CLI ---> lincense ---> tap enter 5 times
+  press y 
+  ex
+  reload
+  press y 
+
+Step 8 :-  R3
+access-list 110 permit ip 192.168.3.0 0.0.0.255 192.168.1.0 0.0.0.255
+crypto isakmp policy 10
+encryption aes 256
+authentication pre-share 
+group 5
+exit
+crypto isakmp key vpnpa55 address 10.1.1.2
+crypto ipsec transform-set VPN-SET esp-aes esp-sha-hmac
+crypto map VPN-MAP 10 ipsec-isakmp
+description VPN connection to R1
+set peer 10.1.1.2
+set transform-set VPN-SET
+match address 110
+exit
+interface s0/0/1
+crypto map VPN-MAP
+
+step 9 :- type on both routers 
+show crypto ipsec sa
+
+Ping PC-C from PC-A.
+ 
+
+
+
+
+

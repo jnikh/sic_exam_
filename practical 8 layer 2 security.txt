@@ -1,0 +1,62 @@
+router 1941
+PT cloud(serial 0)
+3560-24ps
+switch 2950T-24
+ 
+*SW1
+enable secret enpas55
+line console 0
+password conpas55
+login
+exit
+ip domain-name ccnasecurity.com
+username admin secret adminpa55
+line vty 0 4
+login local
+exit
+crypto key generate rsa*
+ 
+*Central*
+spanning-tree vlan 1 root primary 
+ex
+*Sw1*
+spanning-tree vlan 1 root secondary
+*central*
+show spanning-tree
+*SA*
+interface range fastEthernet 0/1-4
+spanning-tree portfast
+spanning-tree bpduguard enable
+ex
+*SB*
+interface range fastEthernet 0/1-4
+spanning-tree portfast
+spanning-tree bpduguard enable
+*sw1*
+interface range fastEthernet 0/23-24
+spanning-tree guard root
+*sw2*
+interface range fastEthernet 0/23-24
+spanning-tree guard root
+*swa*
+interface range f 0/1-22
+switchport mode access
+switchport port-security maximum 2
+switchport port-security violation shutdown
+switchport port-security mac-address sticky
+*swb*
+interface range f 0/1-22
+switchport mode access
+switchport port-security maximum 2
+switchport port-security violation shutdown
+switchport port-security mac-address sticky
+*swa*
+ex ex ex
+*swb*
+ex ex ex
+login using password
+*
+swa#show port-security interface f0/1
+#conf t
+interface range fastEthernet 0/5-22
+shutdown

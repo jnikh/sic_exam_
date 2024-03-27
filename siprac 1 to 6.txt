@@ -1,0 +1,238 @@
+Practical 1A ospf md5 authentication
+*ospf*
+en
+conf t
+router ospf 1
+network 192.168.1.0 0.0.0.255 area 0
+network 10.1.1.0 0.0.0.3 area 0
+(do this for all router)
+ 
+*ospf md5 authentication*
+ip ospf message-digest-key 1 md5 MD5pa55
+show ip ospf interface
+
+
+practical 1b ntp
+
+pc1->services->NTP->key :1
+password: NTPpa55
+change date
+r1 
+ntp server 192.168.1.5
+ntp update-calendar
+r2
+ntp server 192.168.1.5
+ntp update-calendar
+r3
+ntp server 192.168.1.5
+ntp update-calendar
+
+r1,r2 ,r3 sab mai jayega 
+ntp authenticate 
+ntp trusted-key 1
+ntp authentication-key 1 md5 NTPpa55
+service timestamps log datetime msec
+
+show clock
+service time stamp 
+
+practical 2a log message to the syslog server
+
+logging host 192.168.1.6 -> r1, r2 ,r3 (conft)
+show logging
+
+practical 2b 
+....ROuter 3 me karna rahega ...
+Hostname R3
+ip domain-name ccnasecurity.com
+username SSHadmin privilege 15 secret  ciscosshpa55
+line vty 0 4
+login local
+transport input ssh
+crypto key zeroize rsa
+crypto key generate rsa  
+show ip ssh
+conf t
+ip ssh time-out 90
+ip ssh authentication-retries 2
+ip ssh version 2
+--pc C pe check karenge --
+telnet 192.168.3.1
+ssh -1 SSHadmin 192.168.3.1
+--router 2 mai karenge--
+ssh -1 SSHadmin 192.168.3.1
+show ip ssh
+
+practical 3a AAA Authentication
+--router 1--
+line vty 0 4
+password admin
+login 
+en
+router ospf 1
+network 192.168.1.0 0.0.0.255 area 0
+network 10.1.1.0 0.0.0.255 area 0
+--router 2--
+line vty 0 4
+password admin
+login 
+en
+router ospf 2
+network 192.168.2.0 0.0.0.255 area 0
+network 10.1.1.0 0.0.0.255 area 0
+network 10.2.2.0 0.0.0.255 area 0
+
+--router 3--
+line vty 0 4
+password admin
+login 
+en
+router ospf 3
+network 192.168.3.0 0.0.0.255 area 0
+network 10.2.2.0 0.0.0.255 area 0
+
+-router1-
+username Admin1 secret admin1pa55
+aaa new-model
+aaa authentication login default local
+line console 0
+login authentication default 
+en
+exit
+en
+conf t
+ip domain-name ccnasecurity.com
+crypto key generate rsa
+aaa authentication login SSH-LOGIN local 
+line vty 0 4 
+login authentication SSH-LOGIN
+transport input ssh
+PC> ssh –l Admin1 192.168.1.1  
+Open  
+Password: admin1pa55   
+
+-router 2-
+username Admin2 secret admin2pa55
+aaa new-model 
+ aaa authentication login default group tacacs+ local 
+line console 0 
+ login authentication default 
+
+-router 3- 
+en
+conf t
+username Admin3 secret admin3pa55
+aaa new-model 
+ aaa authentication login default group tacacs+ local 
+line console 0 
+ login authentication default 
+end 
+ exit  
+User Access Verification  
+Username: Admin3  
+Password: admin3pa55
+
+--Practical 4 ACL--
+
+conf t
+access-list 100 permit tcp 172.22.34.64 0.0.0.31 host  172.22.34.62 eq ftp
+access-list 100 permit tcp 172.22.34.64 0.0.0.31 host  172.22.34.62 
+interface gigabitEthernet 0/0
+ip access-group 100 in
+
+PC 1> ftp 172.22.34.62  ping karna rahega pc command prompt pe 
+ The username and password are both cisco.  
+
+en
+conf t
+ip access-list extended HTTP_ONLY
+permit tcp 172.22.34.96 0.0.0.15 host 172.22.34.62 eq WWW
+permit icmp 172.22.34.96 0.0.0.15 host 172.22.34.62 
+interface gigabitEthernet 0/1
+ip access-group HTTP_ONLY in
+
+--Practical 5--
+interface gigabitEthernet0/0/0
+ex
+ip route 192.168.0.0 255.255.255.0 10.10.10.2
+enable secret enpa55
+line console 0
+password conpa55
+login
+exit
+ip domain-name ccnasecurity.com
+username admin secret adminpa55
+line vty 0 4
+login local
+exit 
+crypto key generate rsa
+1024
+access-list 1 permit 192.168.0.2 0.0.0.0
+access-list 1 deny any
+ping karne ka pc-A and pc-B :- ssh -1 admin 192.168.0.1
+
+line vty 0 4
+access-class 1 in
+en
+access-list 120 permit tcp host 192.168.0.3 host 10.10.10.2 eq ftp
+access-list 120 permit tcp host 192.168.0.2 host 10.10.10.2 eq 22
+int gi0/0/0
+ip access-group 120 in
+to allow access list:- access-list 120 permit icmp any any 
+
+--practical 6 zone based policy firewall--
+
+enable secret enpa55
+line console 0
+password conpa55
+login
+exit
+ip domain-name ccnasecurity.com
+username admin secret adminpa55
+line vty 0 4
+login local
+exit 
+crypto key generate rsa
+1024
+license boot module c1900 technology-package securityk9
+ex
+reload
+conpa55
+enpa55
+conf t
+zone security internal
+ex
+zone security external 
+ex
+show version
+conf t
+ip access-list extended 101
+permit ip 192.168.0.0 0.0.0.255 any
+ex
+class-map type inspect ?
+class-map type inspect match-all 101
+match access-group name 101
+ex
+policy-map type inspect 101
+class type inspect 101
+inspect 
+ex
+ex
+zone-pair security 101 source internal destination external 
+service-policy type inspect 101
+ex
+interface gi0/0
+zone-member security internal 
+ex
+interface gi 0/1
+zone-member-security external
+ex
+ex
+copy running-config STartup-config
+conf t
+phir ping karenge 
+
+
+
+
+

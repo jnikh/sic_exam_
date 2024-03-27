@@ -1,0 +1,77 @@
+Step 1: Enable the Security Technology package.
+a.	On R1, issue the show version command to view the Technology Package license information.
+b.	If the Security Technology package has not been enabled, use the following command to enable the package.
+R1(config)# license boot module c1900 technology-package securityk9
+c.	Accept the end user license agreement.
+d.	Save the running-config and reload the router to enable the security license.
+e.	Verify that the Security Technology package has been enabled by using the show version command.
+
+Step 2: Verify network connectivity.
+a.	Ping from PC-C to PC-A. The ping should be successful.
+b.	Ping from PC-A to PC-C. The ping should be successful.
+
+Step 3: Create an IOS IPS configuration directory in flash
+        create a directory in flash using the mkdir
+        directory ipsdir.
+>       R1# mkdir ipsdir
+>Create directory filename [ipsdir]? <Enter> Created dir flash:ipsdir
+
+Step 4: Configure the IPS signature storage location
+>R1(config)# ip ips config location flash:ipsdir
+
+Step 5: Create an IPS rule.
+>R1(config)# ip ips name iosips
+
+Step 6: Enable logging.
+>R1(config)# ip ips notify log
+>R1(config)# service timestamps log datetime msec
+>. R1(config)#
+logging host 192.168.1.50
+
+Step 7: Configure IOS IPS to use the signature categories
+>R1(config-ips-category)
+>R1(config-ips-category-action)
+>R1(config-ips-category)
+>R1(config-ips-category-action)
+>R1(config-ips-category-action)
+>R1(config-ips-cateogry)
+Do you want to accept these changes? [confirm] <Enter>
+
+Step 8: Apply the IPS rule to an interface.
+>R1(config)
+>R1(config-if) 
+
+Part 2 Modify the Signature
+Step 1: Change the event-action of a signature
+
+>R1(config)
+>R1(config-sigdef)
+>R1(config-sigdef-sig)# status
+>R1(config-sigdef-sig-status))# retired false 
+>R1(config-sigdef-sig-status)# enabled true
+>R1(config-sigdef-sig-status)# exit
+
+>R1(config-sigdef-sig)# engine
+>R1(config-sigdef-sig-engine)# event-action produce-alert R1(config-sigdef- sig-engine)# event-action deny-packet-inline
+>R1(config-sigdef-sig-engine)# exit 
+>R1(config-sigdef-sig)# exit
+>R1(config-sigdef)# exit
+Do you want to accept these changes? [confirm] <Enter>
+
+Step 2: Use show commands to verify IPS.
+the show "ip ips" all command to view the IPS configuration status summary.
+ 
+
+Step 3: Verify that IPS is working properly.
+PC-C, attempt to ping PC-A
+PC-A, attempt to ping PC-C
+
+Step 4: View the syslog messages
+a.	Click the Syslog server.
+b.	Select the Services tab.
+c.	In the left navigation menu, select SYSLOG to view the log file.
+
+Step 5: Check results.
+Your completion percentage should be 100%
+
+
